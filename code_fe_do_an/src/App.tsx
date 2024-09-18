@@ -84,19 +84,19 @@ function App() {
             <Route path="/:id/:week_id/:weekly_exam_id/examsHistory" element={<WeeklyExamHistory />} /> 
             
              <Route path="/admin/*" element={
-              <RoleProtectedRoute roles={['1']}>
+   
                 <AdminRoutes />
-              </RoleProtectedRoute>
+       
             }/>
             <Route path="/contentCreator/*" element={
-              <RoleProtectedRoute roles={['3']}>
+   
                 <ContentCreatorRoutes />
-              </RoleProtectedRoute>
+        
             }/>
             <Route path="/contentManager/*" element={
-              <RoleProtectedRoute roles={['2']}>
+
                 <ContentManagerRoutes />
-              </RoleProtectedRoute>
+    
             } />
             
             <Route path="/error" element={<ErrorPage />}/>
