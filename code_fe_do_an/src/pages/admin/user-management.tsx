@@ -1,21 +1,21 @@
 import {
   Button,
-  Form,
-  Input,
-  Modal,
-  Select,
-  Space,
   Table,
   Tag,
+  Space,
+  Input,
   Pagination,
+  Select,
   message,
+  Modal,
+  Form,
+  Segmented,
 } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { AiOutlineEdit } from "react-icons/ai";
+import { CheckCircleOutlined, UserOutlined, TeamOutlined, SettingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { notification } from "antd";
-import { CheckCircleOutlined } from "@ant-design/icons";
 
 interface User {
   id: number;
@@ -30,34 +30,341 @@ interface User {
   dob: string;
 }
 
-const UserDefaultData: User = {
-  id: 0,
-  full_name: "",
-  email: "",
-  avatar: "",
-  role_id: 4,
-  dob: "",
-  point: 0,
-  password: "",
-  phone_number: "",
-  status_id: 2,
+const UserManagementPage: React.FC = () => {
+  const [reload, setReload] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [data, setData] = useState<User[]>([]);
+  const [filteredData, setFilteredData] = useState<User[]>([]);
+  const [selectedItem, setSelectedItem] = useState<User | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchValue, setSearchValue] = useState("");
+  const [roleFilter, setRoleFilter] = useState<number | null>(null);
+
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    filterData(value, roleFilter);
+  };
+
+  // Handle segmented role filtering
+  const handleSegmentedChange = (value: string) => {
+    const roleMap = {
+      All: null,
+      "Quản trị viên": 1,
+      "Giáo viên": 2,
+      "IT Support": 3,
+    };
+    setRoleFilter(roleMap[value]);
+    filterData(searchValue, roleMap[value]);
+  };
+
+  // Filter data based on search and role
+  const filterData = (search: string, role: number | null) => {
+    const filtered = data.filter((user) => {
+      const matchesSearch =
+        user.full_name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase());
+      const matchesRole = role === null || user.role_id === role;
+      return matchesSearch && matchesRole;
+    });
+    setFilteredData(filtered);
+  };
+
+  const columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+      render: (text: string) => <a>{text}</a>,
+    },
+    {
+      title: "Avatar",
+      dataIndex: "avatar",
+      key: "avatar",
+      render: (text: string) => (
+        <img
+          style={{ width: "40px", height: "40px", borderRadius: "50%" }}
+          src={
+            text || "https://example.com/default-avatar.jpg"
+          }
+          alt="avatar"
+        />
+      ),
+    },
+    {
+      title: "Tên người dùng",
+      dataIndex: "full_name",
+      key: "full_name",
+      render: (text: string) => <p style={{ fontWeight: "bold" }}>{text}</p>,
+    },
+    {
+      title: "Địa chỉ Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone_number",
+      key: "phone_number",
+    },
+    {
+      title: "Vai trò",
+      dataIndex: "role_id",
+      key: "role_id",
+      render: (_: any, user: User) => {
+        const { role_id } = user;
+        const bgColor =
+          role_id === 1
+            ? "cyan"
+            : role_id === 2
+            ? "green"
+            : role_id === 3
+            ? "volcano"
+            : role_id === 4
+            ? "magenta"
+            : "";
+        const content =
+          role_id === 1
+            ? "Quản trị viên"
+            : role_id === 2
+            ? "Giáo viên"
+            : role_id === 3
+            ? "IT Support"
+            : "Người dùng";
+        return (
+          <Tag color={bgColor} key={role_id}>
+            {content}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Trạng thái",
+      key: "status_id",
+      render: (_: any, user: User) => {
+        const { status_id } = user;
+        const bgColor =
+          status_id === 1
+            ? "cyan"
+            : status_id === 2
+            ? "green"
+            : status_id === 3
+            ? "volcano"
+            : "";
+        const content =
+          status_id === 1
+            ? "Pending"
+            : status_id === 2
+            ? "Hoạt động"
+            : status_id === 3
+            ? "Không hoạt động"
+            : "";
+        return (
+          <Tag
+            color={bgColor}
+            key={status_id}
+            style={{ textTransform: "capitalize" }}
+          >
+            {content}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Ngày sinh",
+      dataIndex: "dob",
+      key: "dob",
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_: any, record: User) => {
+        return (
+          <Space size="middle">
+            <a
+              onClick={() => {
+                setSelectedItem(record);
+                setIsModalOpen(true);
+              }}
+            >
+              <AiOutlineEdit style={{ fontSize: "20px", color: "orange" }} />
+            </a>
+          </Space>
+        );
+      },
+    },
+  ];
+
+  useEffect(() => {
+      // Test data for users
+  const testData: User[] = [
+    {
+      id: 1,
+      full_name: "Nguyễn Văn A",
+      email: "nguyenvana@example.com",
+      avatar: "https://i.pravatar.cc/150?img=1", // Random male avatar
+      role_id: 1,
+      point: 100,
+      dob: "1990-01-01",
+      phone_number: "0912345678",
+      status_id: 2,
+    },
+    {
+      id: 2,
+      full_name: "Trần Thị B",
+      email: "tranthib@example.com",
+      avatar: "https://i.pravatar.cc/150?img=2", // Random female avatar
+      role_id: 3,
+      point: 120,
+      dob: "1992-02-02",
+      phone_number: "0912345679",
+      status_id: 3,
+    },
+    {
+      id: 3,
+      full_name: "Phạm Văn C",
+      email: "phamvanc@example.com",
+      avatar: "https://i.pravatar.cc/150?img=3", // Random male avatar
+      role_id: 3,
+      point: 80,
+      dob: "1989-03-03",
+      phone_number: "0912345680",
+      status_id: 2,
+    },
+    {
+      id: 4,
+      full_name: "Nguyễn Thị D",
+      email: "nguyenthid@example.com",
+      avatar: "https://i.pravatar.cc/150?img=4", // Random female avatar
+      role_id: 2,
+      point: 90,
+      dob: "1985-04-04",
+      phone_number: "0912345681",
+      status_id: 2,
+    },
+    {
+      id: 5,
+      full_name: "Lê Văn E",
+      email: "levane@example.com",
+      avatar: "https://i.pravatar.cc/150?img=5", // Random male avatar
+      role_id: 3,
+      point: 110,
+      dob: "1993-05-05",
+      phone_number: "0912345682",
+      status_id: 3,
+    },
+    {
+      id: 6,
+      full_name: "Trần Thị F",
+      email: "tranthif@example.com",
+      avatar: "https://i.pravatar.cc/150?img=6", // Random female avatar
+      role_id: 3,
+      point: 95,
+      dob: "1991-06-06",
+      phone_number: "0912345683",
+      status_id: 2,
+    },
+    {
+      id: 7,
+      full_name: "Vũ Văn G",
+      email: "vuvang@example.com",
+      avatar: "https://i.pravatar.cc/150?img=7", // Random male avatar
+      role_id: 3,
+      point: 105,
+      dob: "1988-07-07",
+      phone_number: "0912345684",
+      status_id: 2,
+    },
+    {
+      id: 8,
+      full_name: "Đỗ Thị H",
+      email: "dothih@example.com",
+      avatar: "https://i.pravatar.cc/150?img=8", // Random female avatar
+      role_id: 2,
+      point: 100,
+      dob: "1990-08-08",
+      phone_number: "0912345685",
+      status_id: 2,
+    },
+  ];
+
+    if (reload) {
+      // Fetch data (you can replace this with real API data)
+      setData(testData); // Replace this with your data assignment
+      setFilteredData([]); // Also apply filtering if needed
+      setReload(false);
+    }
+  }, [reload]);
+
+  return (
+    <>
+      <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between" }}>
+        {/* Search box */}
+        <Input.Search
+          placeholder="Tìm kiếm theo tên hoặc email"
+          onSearch={handleSearch}
+          style={{ width: "300px" }}
+        />
+
+        {/* Segmented control for role filtering */}
+        <Segmented
+          options={[
+            { label: "All", value: "All", icon: <UserOutlined /> },
+            { label: "Quản trị viên", value: "Quản trị viên", icon: <TeamOutlined /> },
+            { label: "Giáo viên", value: "Giáo viên", icon: <SettingOutlined /> },
+            { label: "IT Support", value: "IT Support", icon: <TeamOutlined /> },
+          ]}
+          onChange={handleSegmentedChange}
+          defaultValue="All"
+        />
+      </div>
+
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        pagination={{
+          current: currentPage,
+          total: totalPages * 10,
+          showSizeChanger: false,
+          onChange: (page) => {
+            setCurrentPage(page);
+            setReload(true);
+          },
+        }}
+      />
+
+      <ModalEdit
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        data={selectedItem}
+        setReload={setReload}
+      />
+    </>
+  );
 };
 
-interface ModalEditProps {
+// ModalEdit component for user creation/editing (remains unchanged)
+const ModalEdit: React.FC<{
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
   data: User | null;
   setReload: (reload: boolean) => void;
-}
-
-const ModalEdit: React.FC<ModalEditProps> = ({
-  isModalOpen,
-  setIsModalOpen,
-  data,
-  setReload,
-}) => {
-  const [userData, setUserData] = useState<User>(UserDefaultData);
+}> = ({ isModalOpen, setIsModalOpen, data, setReload }) => {
+  const [userData, setUserData] = useState<User>(data || {
+    id: 0,
+    full_name: "",
+    email: "",
+    avatar: "",
+    role_id: 4,
+    dob: "",
+    point: 0,
+    password: "",
+    phone_number: "",
+    status_id: 2,
+  });
   const navigate = useNavigate();
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -66,24 +373,6 @@ const ModalEdit: React.FC<ModalEditProps> = ({
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
   };
-
-  useEffect(() => {
-    if (data) {
-      setUserData({
-        id: data.id,
-        full_name: data.full_name || "",
-        password: "",
-        email: data.email,
-        phone_number: data.phone_number || "",
-        role_id: data.role_id || 4,
-        status_id: data.status_id || 2,
-        dob: data.dob || "",
-        point: data.point || 0,
-      });
-    } else {
-      setUserData(UserDefaultData);
-    }
-  }, [data]);
 
   const handleCreateAccount = async () => {
     if (!userData.password) {
@@ -122,17 +411,23 @@ const ModalEdit: React.FC<ModalEditProps> = ({
         role_id: userData.role_id,
       });
       if (response.status === 201) {
-        message.success("Create successful");
+        message.success("Tạo người dùng thành công");
         setReload(true);
         setIsModalOpen(false);
       } else {
-        message.error("Operation failed");
+        message.error("Thao tác thất bại");
       }
     } catch (error) {
       console.error(error);
       navigate("/error", { state: { message: error } });
     }
   };
+
+  useEffect(() => {
+    if (data) {
+      setUserData(data);
+    }
+  }, [data]);
 
   return (
     <Modal
@@ -167,29 +462,6 @@ const ModalEdit: React.FC<ModalEditProps> = ({
           />
         </Form.Item>
 
-        <Form.Item label="Trạng thái">
-          <Select
-            onChange={(value) => setUserData({ ...userData, status_id: value })}
-            value={userData.status_id}
-          >
-            <Select.Option value={2}>Hoạt động</Select.Option>
-            <Select.Option value={3}>Không hoạt động</Select.Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item label="Vị trí">
-          <Select
-            onChange={(value) => setUserData({ ...userData, role_id: value })}
-            value={userData.role_id}
-            options={[
-              { label: "Quản trị viên", value: 1 },
-              { label: "Người duyệt nội dung", value: 2 },
-              { label: "Người tạo nội dung", value: 3 },
-              { label: "Người dùng", value: 4 },
-            ]}
-          />
-        </Form.Item>
-
         <Form.Item label="Số điện thoại">
           <Input
             value={userData.phone_number}
@@ -207,318 +479,30 @@ const ModalEdit: React.FC<ModalEditProps> = ({
           />
         </Form.Item>
 
-        {/* <Form.Item label="Point">
-          <Input
-            value={userData.point}
-            onChange={handleChangeInput}
-            name="point"
-            readOnly
+        <Form.Item label="Trạng thái">
+          <Select
+            onChange={(value) => setUserData({ ...userData, status_id: value })}
+            value={userData.status_id}
+          >
+            <Select.Option value={2}>Hoạt động</Select.Option>
+            <Select.Option value={3}>Không hoạt động</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Vị trí">
+          <Select
+            onChange={(value) => setUserData({ ...userData, role_id: value })}
+            value={userData.role_id}
+            options={[
+              { label: "Quản trị viên", value: 1 },
+              { label: "Giáo viên", value: 2 },
+              { label: "IT Support", value: 3 },
+              { label: "Người dùng", value: 4 },
+            ]}
           />
-        </Form.Item> */}
+        </Form.Item>
       </Form>
     </Modal>
-  );
-};
-
-const UserManagementPage: React.FC = () => {
-  const [reload, setReload] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [data, setData] = useState<User[]>([]);
-  const [selectedItem, setSelectedItem] = useState<User | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-
-  const handleDeleteUser = async (id: number) => {};
-
-  const showSuccessNotification = () => {
-    notification.open({
-      message: "",
-      description: "Cập nhật thành công.",
-      icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />, // Green check mark
-      placement: "topRight",
-    });
-  };
-
-  const handleUpdateUserData = async () => {
-    if (!selectedItem.role_id || !selectedItem.status_id) {
-      message.warning("Hãy điền đầy đủ thông tin");
-      return;
-    }
-
-    try {
-      let token = "";
-      const userEncode = localStorage.getItem("user");
-      if (userEncode) {
-        const userDecode = JSON.parse(userEncode);
-        token = userDecode?.token;
-      }
-      const response = await axios.put(
-        `/account/${selectedItem.account_id}`,
-        selectedItem,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        showSuccessNotification();
-        setReload(true);
-        setSelectedItem(null);
-      } else {
-        message.error("Cập nhật thất bại");
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const columns = [
-    {
-      title: "Id",
-      dataIndex: "account_id",
-      key: "account_id",
-      render: (text: string) => <a>{text}</a>,
-    },
-    {
-      title: "Avatar",
-      dataIndex: "avatar",
-      key: "avatar",
-      render: (text: string) => (
-        <img
-          style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-          src={
-            text ||
-            "https://png.pngtree.com/png-clipart/20190902/original/pngtree-cute-girl-avatar-element-icon-png-image_4393286.jpg"
-          }
-          alt="avatar"
-        />
-      ),
-    },
-    {
-      title: "Tên người dùng",
-      dataIndex: "full_name",
-      key: "full_name",
-      render: (text: string) => <p style={{ fontWeight: "bold" }}>{text}</p>,
-    },
-    {
-      title: "Địa chỉ Email",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phone_number",
-      key: "phone_number",
-    },
-    {
-      title: "Vai trò",
-      dataIndex: "role_id",
-      key: "role_id",
-      render: (_: any, user: User) => {
-        const { role_id, account_id } = user;
-        const bgColor =
-          role_id === 1
-            ? "cyan"
-            : role_id === 2
-            ? "green"
-            : role_id === 3
-            ? "volcano"
-            : role_id === 4
-            ? "magenta"
-            : "";
-        const content =
-          role_id === 1
-            ? "Quản trị viên"
-            : role_id === 2
-            ? "Người duyệt nội dung"
-            : role_id === 3
-            ? "Người tạo nội dung"
-            : role_id === 4
-            ? "Người dùng"
-            : "";
-        return (
-          <>
-            {selectedItem?.account_id !== account_id ? (
-              <Tag color={bgColor} key={role_id}>
-                {content}
-              </Tag>
-            ) : (
-              <Select
-                onChange={(value) =>
-                  setSelectedItem({ ...selectedItem, role_id: value })
-                }
-                value={selectedItem.role_id}
-                options={[
-                  { label: "Người duyệt nội dung", value: 2 },
-                  { label: "Người tạo nội dung", value: 3 },
-                  { label: "Người dùng", value: 4 },
-                ]}
-              />
-            )}
-          </>
-        );
-      },
-    },
-    {
-      title: "Trạng thái",
-      key: "status_id",
-      render: (_: any, user: User) => {
-        const { status_id, account_id } = user;
-        const bgColor =
-          status_id === 1
-            ? "cyan"
-            : status_id === 2
-            ? "green"
-            : status_id === 3
-            ? "volcano"
-            : status_id === 4
-            ? "magenta"
-            : status_id === 5
-            ? "magenta"
-            : "";
-        const content =
-          status_id === 1
-            ? "Pending"
-            : status_id === 2
-            ? "hoạt động"
-            : status_id === 3
-            ? "không hoạt động"
-            : status_id === 4
-            ? "done"
-            : status_id === 5
-            ? "undone"
-            : "";
-        return (
-          <>
-            {selectedItem?.account_id !== account_id ? (
-              <Tag
-                color={bgColor}
-                key={status_id}
-                style={{ textTransform: "capitalize" }}
-              >
-                {content}
-              </Tag>
-            ) : (
-              <Select
-                onChange={(value) =>
-                  setSelectedItem({ ...selectedItem, status_id: value })
-                }
-                value={selectedItem.status_id}
-              >
-                <Select.Option value={2}>Hoạt động</Select.Option>
-                <Select.Option value={3}>Không hoạt động</Select.Option>
-              </Select>
-            )}
-          </>
-        );
-      },
-    },
-    {
-      title: "Ngày sinh",
-      dataIndex: "dob",
-      key: "dob",
-    },
-    // {
-    //   title: "Điểm",
-    //   dataIndex: "point",
-    //   key: "point",
-    // },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (_: any, record: User) => {
-        return (
-          <>
-            {selectedItem?.account_id === record?.account_id ? (
-              <Button type="primary" onClick={handleUpdateUserData}>
-                Xác nhận
-              </Button>
-            ) : (
-              <Space size="middle">
-                <a
-                  onClick={() => {
-                    setSelectedItem(record);
-                  }}
-                >
-                  <AiOutlineEdit
-                    style={{ fontSize: "20px", color: "orange" }}
-                  />
-                </a>
-              </Space>
-            )}
-          </>
-        );
-      },
-    },
-  ];
-
-  const handleFetchData = async (page = 1) => {
-    try {
-      let token = "";
-      const userEncode = localStorage.getItem("user");
-      if (userEncode) {
-        const userDecode = JSON.parse(userEncode);
-        token = userDecode?.token;
-      }
-      const request = await axios.get(`/account?page=${page}&pageSize=10`, {
-        headers: {
-          Authorization: token,
-        },
-      });
-      const response = request.data;
-      if (response.statusCode === 200) {
-        setData(response.data.data);
-        setTotalPages(response.data.total_pages);
-        setCurrentPage(page);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (reload) {
-      handleFetchData(currentPage);
-      setReload(false);
-    }
-  }, [reload, currentPage]);
-
-  return (
-    <>
-      <Button
-        onClick={() => {
-          setIsModalOpen(true);
-          setSelectedItem(null);
-        }}
-        type="primary"
-        style={{ marginBottom: "1%" }}
-      >
-        Tạo người dùng mới
-      </Button>
-      <Table
-        loading={reload}
-        columns={columns}
-        dataSource={data}
-        pagination={{
-          current: currentPage,
-          total: totalPages * 10,
-          showSizeChanger: false,
-          onChange: (page) => {
-            setCurrentPage(page);
-            setReload(true);
-          },
-        }}
-      />
-
-      <ModalEdit
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        data={selectedItem}
-        setReload={setReload}
-      />
-    </>
   );
 };
 

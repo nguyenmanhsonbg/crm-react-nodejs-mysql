@@ -10,7 +10,7 @@ export const adminRoutes = [
   { path: "devices-management", element: DeviceManagementPage },
   { path: "softwares-management", element: SoftwaresManagementPage },
   { path: "computer-types-management", element: ComputerTypesManagement },
-  { path: "computer-rooms-management", element: ComputerRoomsManagement },
+  { path: "computer-rooms-management/manage", element: ComputerRoomsManagement },
   { path: "computer-room-detail-management", element: ComputerRoomDetailManagement },
   { path: "assign-support-room", element: UserManagementPage },
 ];
