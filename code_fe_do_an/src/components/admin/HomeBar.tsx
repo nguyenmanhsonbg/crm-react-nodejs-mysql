@@ -21,7 +21,7 @@ export default function HomeBar() {
       <div className="flex flex-col items-start h-full pt-12">
         <button className="flex items-center w-full h-12 pl-2 rounded-lg home-bar">
           <FontAwesomeIcon icon={faHome} className="text-gray-700 " />
-          <p className="pl-2 textHomeBar">Trang chủ</p>
+          <p className="pl-2 textHomeBar">Quản lý</p>
         </button>
         <button className="flex items-center w-full h-12 pl-2 mt-2 rounded-lg home-bar">
           <FontAwesomeIcon icon={faUserCircle} className="text-gray-700" />

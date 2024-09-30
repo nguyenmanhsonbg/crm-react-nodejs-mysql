@@ -54,10 +54,10 @@ export function Nav() {
             <NavigationMenuLink
               className={cn(
                 navigationMenuTriggerStyle(),
-                "bg-transparent w-40 text-[#6fb24d] font-semibold text-[20px] hover:bg-[#B6DA9F] hover:text-black"
+                "bg-transparent w-40 text-[#084fc2] font-semibold text-[20px] hover:bg-[#084fc2] hover:text-black"
               )}
             >
-              TRANG CHỦ
+              Quản lý 
             </NavigationMenuLink>
           </NavLink>
         </NavigationMenuItem>
@@ -143,110 +143,9 @@ export function Nav() {
           )}
         </NavigationMenuItem>)}
         
-        {/* <NavigationMenuItem  className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
-          <NavigationMenuTrigger className="bg-transparent w-40 font-semibold submenu-trigger text-[#6fb24d] text-[20px]">
-            TRÒ CHƠI
-          </NavigationMenuTrigger>
-          {auth.token !== "" ? (
-            <NavigationMenuContent>
-              <ul className="gap-3 p-6 w-60">
-                <ListItem href="/" title="Trò chơi 1" />
-                <ListItem href="/" title="Trò chơi 2" />
-              </ul>
-            </NavigationMenuContent>
-          ) : (
-            <NavigationMenuContent>
-              <ul className="gap-3 p-6 w-60">
-                <ListItem title="Bạn chưa đăng nhập!!!" />
-              </ul>
-            </NavigationMenuContent>
-          )}
-        </NavigationMenuItem> */}
-        <NavigationMenuItem  className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
-          <NavigationMenuTrigger className="bg-transparent w-40 font-semibold submenu-trigger text-[#6fb24d] text-[20px]">
-            GIỚI THIỆU
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="gap-3 p-6 w-60">
-              <ListItem href="/aboutDNLS" title="Về trang web" />
-              <ListItem href="/aboutDekiru" title="Về giáo trình Dekiru Nihongo" />
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   );
-  if(window.innerWidth <= 1170 && window.innerWidth > 750)
-      return (
-        <NavigationMenu onValueChange={onNavChange}>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavLink to="/">
-                <NavigationMenuLink
-                  className={cn(
-                    navigationMenuTriggerStyle(),
-                    "bg-transparent  text-[#6fb24d] font-semibold text-[15px] hover:bg-[#B6DA9F] hover:text-black"
-                  )}
-                >
-                  TRANG CHỦ
-                </NavigationMenuLink>
-              </NavLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
-              <NavigationMenuTrigger className="bg-transparent font-semibold submenu-trigger text-[#6fb24d] text-[15px] ">
-                HỌC TẬP
-              </NavigationMenuTrigger>
-              {auth.token !== "" ? (
-                <NavigationMenuContent>
-                  <ul className="gap-3 p-6 text-xl w-60">
-                    <ListItem href="/alphabet" title="Học bảng chữ cái" />
-                    <ListItem href="/course" title="Học theo mã môn" />
-                  </ul>
-                </NavigationMenuContent>
-              ) : (
-                <NavigationMenuContent>
-                  <ul className="gap-3 p-6 w-60">
-                    <ListItem title="Bạn chưa đăng nhập!!!" />
-                  </ul>
-                </NavigationMenuContent>
-              )}
-            </NavigationMenuItem>
-            <NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
-              <NavigationMenuTrigger className="bg-transparent font-semibold submenu-trigger text-[#6fb24d] text-[15px]">
-                GIỚI THIỆU
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="gap-3 p-6 w-60">
-                  <ListItem href="/" title="Về trang web" />
-                  <ListItem href="/" title="Về giáo trình Dekiru Nihongo" />
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      );
-if(window.innerWidth <= 750)
-        return (
-          <NavigationMenu onValueChange={onNavChange}>
-            <NavigationMenuList>
-              <NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
-                <NavigationMenuTrigger className="bg-transparent font-semibold submenu-trigger text-[#6fb24d] text-[9px]">
-                  <FaBars className="size-8" />
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="gap-3 text-[#6fb24d] p-6 w-60">
-                    <ListItem href="/alphabet" title="Học bảng chữ cái" />
-                    <ListItem href="/course" title="Học theo mã môn" />
-                    {/* <ListItem href="/" title="Trò chơi 1" />
-                    <ListItem href="/" title="Trò chơi 2" /> */}
-                    <ListItem href="/" title="Về trang web" />
-                    <ListItem href="/" title="Về giáo trình Dekiru Nihongo" />
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        );
 }
 
 const ListItem = React.forwardRef<
