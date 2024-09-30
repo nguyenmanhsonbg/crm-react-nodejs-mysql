@@ -86,13 +86,13 @@ const ModalEdit: React.FC<ModalEditProps> = ({
 
   return (
     <Modal
-      title={data ? "Edit Software" : "Add Software"}
+      title={data ? "Sửa phần mềm" : "Thêm phần mềm"}
       visible={isModalOpen}
       onOk={handleSaveSoftware}
       onCancel={handleCancel}
     >
       <Form style={{ maxWidth: 600 }} layout="vertical" autoComplete="off">
-        <Form.Item label="Software Name">
+        <Form.Item label="Tên phần mềm">
           <Input
             value={softwareData.name}
             onChange={handleChangeInput}
@@ -137,22 +137,22 @@ const SoftwareManagementPage: React.FC = () => {
       key: "id",
     },
     {
-      title: "Software Name",
+      title: "Tên phần mềm",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Version",
+      title: "Phiên bản",
       dataIndex: "version",
       key: "version",
     },
     {
-      title: "License Expiration Date",
+      title: "Hạn ",
       dataIndex: "licenseExpirationDate",
       key: "licenseExpirationDate",
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "action",
       render: (_: any, record: Software) => (
         <Space size="middle">

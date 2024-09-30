@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form, Input } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import ComputerRoomComponent from '../../components/Card/ComputerRoomComponent'; // Adjust the import path as needed
-
+import { Typography } from 'antd';
 interface ComputerRoom {
   id: number;
   name: string;
@@ -30,46 +31,9 @@ const ComputerRoomManagementPage: React.FC = () => {
       numberOfComputers: 30,
       supportStaff: "Jane Smith",
     },
-    {
-      id: 3,
-      name: "Room C",
-      numberOfComputers: 15,
-      supportStaff: "Mike Johnson",
-    },
-    {
-      id: 4,
-      name: "Room C",
-      numberOfComputers: 15,
-      supportStaff: "Mike Johnson",
-    },
-    {
-      id: 5,
-      name: "Room C",
-      numberOfComputers: 15,
-      supportStaff: "Mike Johnson",
-    },
-    {
-      id: 6,
-      name: "Room C",
-      numberOfComputers: 15,
-      supportStaff: "Mike Johnson",
-    },
-    {
-      id: 7,
-      name: "Room C",
-      numberOfComputers: 15,
-      supportStaff: "Mike Johnson",
-    },
-    {
-      id: 7,
-      name: "Room C",
-      numberOfComputers: 60,
-      supportStaff: "Mike Johnson",
-    },
   ];
   
   const handleFetchData = async () => {
-    // Using sample data for testing UI
     setData(sampleComputerRooms);
   };
 
@@ -108,14 +72,7 @@ const ComputerRoomManagementPage: React.FC = () => {
 
   return (
     <>
-      <Button
-        onClick={() => showModal(null)}
-        type="primary"
-        style={{ marginBottom: "1%" }}
-      >
-        Add Computer Room
-      </Button>
-      
+
       <Row gutter={[16, 16]}>
         {data.map((room) => (
           <Col key={room.id} xs={24} sm={12} md={10} lg={4} xl={5}>
@@ -125,10 +82,38 @@ const ComputerRoomManagementPage: React.FC = () => {
             />
           </Col>
         ))}
+        {/* Add Room Card at the end */}
+        <Col xs={24} sm={12} md={10} lg={4} xl={5}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: 250,
+              height: 250,
+              cursor: 'pointer',
+              borderRadius: '15px',
+              backgroundColor: '#E3F2FD', // Light Blue
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+              transition: 'transform 0.3s, box-shadow 0.3s',
+            }}
+            onClick={() => showModal(null)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+            }}
+          >
+            <PlusOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
+          </div>
+        </Col>
       </Row>
 
       <Modal
-        title={selectedItem ? "Edit Computer Room" : "Add Computer Room"}
+        title={selectedItem ? "Sửa phòng máy" : "Thêm phòng máy"}
         visible={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -137,21 +122,21 @@ const ComputerRoomManagementPage: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item 
-            label="Room Name" 
+            label="Tên phòng" 
             name="name" 
             rules={[{ required: true, message: 'Please enter the room name' }]}
           >
             <Input />
           </Form.Item>
           <Form.Item 
-            label="Number of Computers" 
+            label="Số lượng máy" 
             name="numberOfComputers" 
             rules={[{ required: true, message: 'Please enter the number of computers' }]}
           >
             <Input type="number" />
           </Form.Item>
           <Form.Item 
-            label="Support Staff" 
+            label="Nhân viên hỗ trợ" 
             name="supportStaff" 
             rules={[{ required: true, message: 'Please enter the support staff name' }]}
           >

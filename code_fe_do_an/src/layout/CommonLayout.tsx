@@ -35,12 +35,13 @@ const CommonLayout = ({ children }) => {
   } = theme.useToken();
 
   useEffect(() => {
-    const userEncode = localStorage.getItem("user");
-    if (userEncode) {
-      const userDecode = JSON.parse(userEncode);
-      // setRole(userDecode?.role_id?.toString() || "1");
-      setRole("1"); // Adjust role based on user data
-    }
+    setRole("1"); 
+    // const userEncode = localStorage.getItem("user");
+    // if (userEncode) {
+    //   const userDecode = JSON.parse(userEncode);
+    //   // setRole(userDecode?.role_id?.toString() || "1");
+    //   setRole("1"); // Adjust role based on user data
+    // }
   }, [auth]);
 
   return (

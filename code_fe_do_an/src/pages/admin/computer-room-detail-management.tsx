@@ -64,64 +64,86 @@ const ComputerRoomDetailManagementPage: React.FC = () => {
       devices: ['Keyboard', 'Mouse'],
       software: ['Windows 10', 'Office 365'],
       status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
+    },{
+      id: 1,
+      name: 'Comp 1',
+      computerType: 'Desktop',
+      devices: ['Keyboard', 'Mouse'],
+      software: ['Windows 10', 'Office 365'],
+      status: 'operational',
     },
 
-    {
-      id: 2,
-      name: 'Comp 2',
-      computerType: 'Laptop',
-      devices: ['Webcam', 'Bluetooth Mouse'],
-      software: ['Ubuntu', 'VS Code'],
-      status: 'maintenance',
-    },
-    {
-      id: 2,
-      name: 'Comp 2',
-      computerType: 'Laptop',
-      devices: ['Webcam', 'Bluetooth Mouse'],
-      software: ['Ubuntu', 'VS Code'],
-      status: 'maintenance',
-    },
-    {
-      id: 2,
-      name: 'Comp 2',
-      computerType: 'Laptop',
-      devices: ['Webcam', 'Bluetooth Mouse'],
-      software: ['Ubuntu', 'VS Code'],
-      status: 'maintenance',
-    },
-    {
-      id: 2,
-      name: 'Comp 2',
-      computerType: 'Laptop',
-      devices: ['Webcam', 'Bluetooth Mouse'],
-      software: ['Ubuntu', 'VS Code'],
-      status: 'maintenance',
-    },
-    {
-      id: 2,
-      name: 'Comp 2',
-      computerType: 'Laptop',
-      devices: ['Webcam', 'Bluetooth Mouse'],
-      software: ['Ubuntu', 'VS Code'],
-      status: 'maintenance',
-    },
-    {
-      id: 2,
-      name: 'Comp 2',
-      computerType: 'Laptop',
-      devices: ['Webcam', 'Bluetooth Mouse'],
-      software: ['Ubuntu', 'VS Code'],
-      status: 'maintenance',
-    },
-    {
-      id: 3,
-      name: 'Comp 3',
-      computerType: 'Tablet',
-      devices: ['Stylus Pen'],
-      software: ['Android OS', 'Drawing App'],
-      status: 'faulty',
-    },
+
     // Add more sample computers as needed
   ];
 
@@ -153,6 +175,10 @@ const ComputerRoomDetailManagementPage: React.FC = () => {
 
   return (
     <>
+     <Typography.Title level={2} style={{ textAlign: 'center', margin: '20px 0' }}>
+      Computer Room Detail Management
+    </Typography.Title>
+    
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <Search
           placeholder="Search computers"
@@ -176,9 +202,18 @@ const ComputerRoomDetailManagementPage: React.FC = () => {
           <Typography.Title level={4}>{type}</Typography.Title>
           <Row gutter={[16, 16]}>
             {groupedComputers[type as 'Desktop' | 'Laptop' | 'Tablet'].map((computer) => (
-              <Col key={computer.id} xs={24} sm={12} md={8} lg={4} xl={2.4}>
-                <ComputerComponent computer={computer} onViewDetails={handleViewDetails} />
-              </Col>
+              <Col 
+              key={computer.id} 
+              xs={24} 
+              sm={12} 
+              md={8} 
+              lg={4} 
+              xl={2.4} 
+              style={{ marginTop: '12px',marginBottom: '12px' }}
+            >
+              <ComputerComponent computer={computer} onViewDetails={handleViewDetails} />
+            </Col>
+            
             ))}
           </Row>
         </div>
