@@ -1,6 +1,7 @@
 // services/UsersService.js
 
 const { User, IncidentReport, MaintenanceHistory, Support } = require('../../models');
+const bcrypt = require('bcrypt');
 
 class UsersService {
   async getAllUsers() {
@@ -38,9 +39,24 @@ class UsersService {
     }
   }
 
+  // Refined createUser method to hash password before saving
   async createUser(data) {
     try {
-      const newUser = await User.create(data);
+      // Check if password is provided
+      if (!data.password) {
+        throw new Error('Password is required');
+      }
+
+      // Hash the password using bcrypt
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+      // Create user with hashed password
+      const newUser = await User.create({
+        ...data,
+        password: hashedPassword,  // Store the hashed password
+      });
+
       return newUser;
     } catch (error) {
       console.error('Error in createUser:', error);
@@ -54,6 +70,13 @@ class UsersService {
       if (!user) {
         return null;
       }
+
+      // Hash password if provided in the update request
+      if (data.password) {
+        const saltRounds = 10;
+        data.password = await bcrypt.hash(data.password, saltRounds);
+      }
+
       await user.update(data);
       return user;
     } catch (error) {

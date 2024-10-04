@@ -1,7 +1,7 @@
 import { Flex, Spin } from "antd";
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AuthProvider from "./hook/AuthContext";
+import {AuthProvider} from "./hook/AuthContext";
 import Alphabet from "./pages/alphabet/Alphabet";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import GetAuthenticationCode from "./pages/authentication/GetAuthenticationCode";

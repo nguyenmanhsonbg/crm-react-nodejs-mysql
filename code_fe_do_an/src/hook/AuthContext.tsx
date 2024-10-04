@@ -1,156 +1,67 @@
-import { isEmptyObj } from "@/helper";
-import axios, { AxiosRequestConfig } from "axios";
-import React, {
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
+// Define User interface based on your Sequelize User model
 interface User {
-  account_id: number;
-  full_name: string;
+  user_id: number;
+  username: string;
+  password?: string;
+  role: 'teacher' | 'admin' | 'support';
+  image_path?: string;
   email: string;
-  phone_number: string;
-  dob: Date;
-  avatar: string;
-  role_id: number;
-  point: number;
-  status_id: number;
-  token: string;
+  full_name: string;
+  token: string;  // JWT Token
 }
 
+// Define context type
 type AuthContextType = {
   user: User | null;
-  setUser: Dispatch<SetStateAction<User | null>>;
-  isOtpVerified: boolean;
-  verifyOtp: () => void;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  handleLogin: (userData: User) => void;
   handleLogout: () => void;
-  handleFetch: any;
 };
 
-
+// Create the AuthContext
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState(
-    () => JSON.parse(localStorage.getItem("user") || "{}") || null
-  );
-
-  const [isOtpVerified, setOtpVerified] = useState<boolean>(false);
-  
-  const verifyOtp = () => {
-    setOtpVerified(true);
-  };
-
+// AuthProvider Component
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(() => JSON.parse(localStorage.getItem('user') || 'null'));
   const navigate = useNavigate();
 
-  const handleFetch = async ({
-    method: method,
-    url: url,
-    payload: payload,
-  }) => {
-    try {
-      let token = "";
-      const userEncode = localStorage.getItem("user");
-      if (userEncode) {
-        const userDecode = JSON.parse(userEncode);
-        token = userDecode?.token;
-      }
-      const request = await axios({
-        method: method,
-        url: url,
-        headers: {
-          Authorization: token,
-        },
-        data: payload,
-      });
-      return request.data;
-    } catch (error) {
-      console.error(error);
-    }
+  // Handle login and save user in localStorage
+  const handleLogin = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const handleLogout = async () => {
-    try {
-      let token = "";
-      const userEncode = localStorage.getItem("user");
-      if (userEncode) {
-        const userDecode = JSON.parse(userEncode);
-        token = userDecode?.token;
-      }
-      const payload = { account_id: user?.account_id };
-      const request = await axios.post("/logout", payload, {
-        headers: {
-          Authorization: token,
-        },
-      });
-      const response = request.data;
-      if (response.statusCode === 200) {
-        localStorage.removeItem("user");
-        navigate("/");
-        setUser({});
-      }
-    } catch (e) {
-      console.log(e);
-    }
+  // Handle logout, remove user from localStorage, and redirect to login
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
+  // Persist user data in localStorage when it changes
   useEffect(() => {
-    if (!isEmptyObj(user)) localStorage.setItem("user", JSON.stringify(user));
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser,isOtpVerified, verifyOtp, handleLogout, handleFetch }}>
+    <AuthContext.Provider value={{ user, setUser, handleLogin, handleLogout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export default AuthProvider;
-
-// Custom hook để sử dụng AuthContext
+// Custom hook for using AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
-
-interface RequestOptions<T> {
-  method: string;
-  url: string;
-  data?: T;
-  token?: string;
-}
-
-// export async function useAuthAPI<T, R>({
-//   method,
-//   url,
-//   data,
-// }: RequestOptions<T>): Promise<R> {
-//   try {
-//     const context = useAuth();
-
-//     const config: AxiosRequestConfig = {
-//       method,
-//       url,
-//       data,
-//       headers: context.user?.token
-//         ? { Authorization: context.user.token }
-//         : undefined,
-//     };
-
-//     const response = await axios(config);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error making request", error);
-//     throw error;
-//   }
-// }
