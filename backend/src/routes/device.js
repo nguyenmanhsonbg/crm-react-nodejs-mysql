@@ -12,9 +12,9 @@ const {
 const router = express.Router();
 
 router.get('/getAllDevices', getAllDevices);
-router.get('/getDeviceById:id', getDeviceById);
+router.get('/getDeviceById/:id', getDeviceById);
 router.post('/createDevice', createDevice);
-router.put('/updateDevice:id', updateDevice);
-router.delete('/deleteDevice:id', deleteDevice);
+router.put('/updateDevice/:device_id', updateDevice);
+router.delete('/deleteDevice/:id', deleteDevice);
 
 module.exports = router;

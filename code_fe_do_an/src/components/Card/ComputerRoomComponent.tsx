@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, Avatar, Typography } from 'antd';
-import { EditOutlined, DesktopOutlined, TeamOutlined } from '@ant-design/icons';
+import { Card, Avatar, Typography, Button } from 'antd';
+import { EditOutlined, DesktopOutlined, TeamOutlined, InfoCircleOutlined } from '@ant-design/icons';
 
 interface ComputerRoom {
   id: number;
@@ -12,9 +12,10 @@ interface ComputerRoom {
 interface ComputerRoomComponentProps {
   room: ComputerRoom;
   onEdit: (room: ComputerRoom) => void;
+  onViewDetail: () => void;
 }
 
-const ComputerRoomComponent: React.FC<ComputerRoomComponentProps> = ({ room, onEdit }) => {
+const ComputerRoomComponent: React.FC<ComputerRoomComponentProps> = ({ room, onEdit, onViewDetail }) => {
   // Define color based on the number of computers
   const backgroundColor = room.numberOfComputers > 20 ? '#E0F7FA' : '#FFF9C4'; // Light blue for more than 20 computers, light yellow otherwise
 
@@ -29,11 +30,19 @@ const ComputerRoomComponent: React.FC<ComputerRoomComponentProps> = ({ room, onE
           <Typography.Title level={4} style={{ margin: 0 }}>{room.name}</Typography.Title>
         </div>
       }
-      extra={<EditOutlined onClick={() => onEdit(room)} style={{ fontSize: '16px', color: '#1890ff' }} />}
+      extra={
+        <EditOutlined 
+          onClick={(e) => { 
+            e.stopPropagation(); // Prevents the card click from triggering when editing
+            onEdit(room); 
+          }} 
+          style={{ fontSize: '16px', color: '#1890ff', cursor: 'pointer' }} 
+        />
+      }
       bordered={false}
       style={{
         width: 250,
-        height: 250,
+        height: 300,
         backgroundColor,
         cursor: 'pointer',
         borderRadius: '15px',
@@ -52,6 +61,7 @@ const ComputerRoomComponent: React.FC<ComputerRoomComponentProps> = ({ room, onE
         justifyContent: 'center',
       }}
       hoverable
+      onClick={onViewDetail} // Handle navigation to detail view
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.05)';
         e.currentTarget.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
@@ -70,6 +80,9 @@ const ComputerRoomComponent: React.FC<ComputerRoomComponentProps> = ({ room, onE
         <Typography.Text><strong>Nhân viên hỗ trợ:</strong></Typography.Text>
         <Typography.Text style={{ display: 'block', fontSize: '12px', color: '#555' }}>{room.supportStaff}</Typography.Text>
       </div>
+      <Button type="primary" icon={<InfoCircleOutlined />} onClick={(e) => { e.stopPropagation(); onViewDetail(); }} style={{ marginTop: '20px' }}>
+        Xem Chi Tiết
+      </Button>
     </Card>
   );
 };

@@ -1,7 +1,7 @@
 import { adminRoutes } from './adminRoutes'
-import { contentCreatorRoutes } from './contentCreatorRoutes'
+import { teacherRoutes } from './teacherRoutes'
 import { contentManagerRoutes } from './contentManagerRoutes'
 
 
 
-export { adminRoutes, contentCreatorRoutes, contentManagerRoutes };
+export { adminRoutes, teacherRoutes, contentManagerRoutes };

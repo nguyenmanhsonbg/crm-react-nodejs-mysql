@@ -36,8 +36,9 @@ const createDevice = async (req, res) => {
 
 const updateDevice = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedDevice = await devicesService.updateDevice(id, req.body);
+    const { device_id } = req.params;
+    console.log(device_id)
+    const updatedDevice = await devicesService.updateDevice(device_id, req.body);
     if (updatedDevice) {
       res.status(200).json(updatedDevice);
     } else {

@@ -42,48 +42,50 @@ class UsersService {
   // Refined createUser method to hash password before saving
   async createUser(data) {
     try {
-      // Check if password is provided
+      // Kiểm tra nếu `password` không tồn tại
       if (!data.password) {
-        throw new Error('Password is required');
+        throw new Error("Password is required");
       }
 
-      // Hash the password using bcrypt
+      // Hash mật khẩu trước khi tạo người dùng
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-      // Create user with hashed password
+      // Tạo người dùng mới với mật khẩu đã được hash
       const newUser = await User.create({
         ...data,
-        password: hashedPassword,  // Store the hashed password
+        password: hashedPassword,
       });
 
       return newUser;
     } catch (error) {
-      console.error('Error in createUser:', error);
+      console.error("Error in createUser:", error);
       throw error;
     }
   }
-
-  async updateUser(id, data) {
-    try {
-      const user = await User.findByPk(id);
-      if (!user) {
-        return null;
-      }
-
-      // Hash password if provided in the update request
-      if (data.password) {
-        const saltRounds = 10;
-        data.password = await bcrypt.hash(data.password, saltRounds);
-      }
-
-      await user.update(data);
-      return user;
-    } catch (error) {
-      console.error(`Error in updateUser (${id}):`, error);
-      throw error;
+  
+// services/UserService.js
+async updateUser(id, data) {
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      return null;
     }
+
+    // Hash password nếu có thay đổi
+    if (data.password) {
+      const saltRounds = 10;
+      data.password = await bcrypt.hash(data.password, saltRounds);
+    }
+
+    await user.update(data);
+    return user;
+  } catch (error) {
+    console.error(`Error in updateUser (${id}):`, error);
+    throw error;
   }
+}
+
 
   async deleteUser(id) {
     try {

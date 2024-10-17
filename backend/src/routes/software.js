@@ -12,9 +12,9 @@ const {
 const router = express.Router();
 
 router.get('/getAllSoftware', getAllSoftware);
-router.get('/getSoftwareById:id', getSoftwareById);
+router.get('/getSoftwareById/:id', getSoftwareById);
 router.post('/createSoftware', createSoftware);
-router.put('/updateSoftware:id', updateSoftware);
+router.put('/updateSoftware/:id', updateSoftware);
 router.delete('/deleteSoftware:id', deleteSoftware);
 
 module.exports = router;

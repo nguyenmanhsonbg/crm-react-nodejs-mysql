@@ -4,6 +4,7 @@ const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require("../../variables/g
 const { User } = require("../../models");
 const { omitPassword } = require("../helper/user");
 
+
 const generateToken = (userData, refreshToken = false) => {
 	const tokenType = refreshToken ? REFRESH_TOKEN_SECRET : ACCESS_TOKEN_SECRET;
 	const tokenExpire = refreshToken ? "30d" : "1h";
@@ -38,43 +39,42 @@ const refreshNewToken = async (req) => {
   };
   
 
+
 const checkAuthAndRole = (requiredRole = []) => {
-	return async (req, res, next) => {
-	  const token = req.headers.authorization;
-  
-	  if (!token) {
-		return unauthorized(res);
-	  }
-  
-	  jwt.verify(token, ACCESS_TOKEN_SECRET, async (err, decoded) => {
-		if (err && err.name === "TokenExpiredError") {
-		  // Nếu token hết hạn, thử làm mới token
-		  const newToken = await refreshNewToken(req);
-		  if (newToken === "login_required") {
-			return unauthorized(res);
-		  } else if (newToken) {
-			req.headers.authorization = newToken;
-		  } else {
-			return unauthorized(res);
-		  }
-		} else if (err) {
-		  return forbidden(res);  // Token không hợp lệ
-		}
-  
-		// Token hợp lệ hoặc đã được làm mới
-		const accountRole = decoded.role_id;
-		const accountId = decoded.account_id;
-  
-		if (requiredRole.includes(accountRole)) {
-		  req.accountRole = accountRole;
-		  req.accountId = accountId;
-		  next();  // Tiếp tục xử lý request
-		} else {
-		  return forbidden(res);  // Không có quyền truy cập
-		}
-	  });
-	};
+  return async (req, res, next) => {
+    // Lấy token từ `Authorization` header
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
+    
+    if (!token) {
+      return unauthorized(res); // Trả về lỗi nếu không có token
+    }
+
+    try {
+      // Xác thực token
+      const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
+
+      // Lấy role và id từ token đã xác thực
+      const accountRole = decoded.role;
+      const accountId = decoded.id;
+
+      // Kiểm tra quyền truy cập dựa trên role của người dùng
+      if (requiredRole.includes(accountRole)) {
+        req.accountRole = accountRole; // Gán role vào request để sử dụng sau
+        req.accountId = accountId;     // Gán id vào request để sử dụng sau
+        next(); // Tiếp tục xử lý request nếu hợp lệ
+      } else {
+        return forbidden(res); // Trả về lỗi nếu không có quyền truy cập
+      }
+    } catch (err) {
+      // Token không hợp lệ hoặc hết hạn
+      if (err.name === "TokenExpiredError") {
+        return unauthorized(res); // Token hết hạn
+      }
+      return forbidden(res); // Token không hợp lệ
+    }
   };
+};
+
   
 
 module.exports = {

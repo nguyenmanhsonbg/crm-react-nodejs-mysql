@@ -1,9 +1,9 @@
 import ContentCreatorLayout from "@/layout/CommonLayout";
-import { contentCreatorRoutes } from "@/router";
+import { teacherRoutes } from "@/router";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 function ContentCreatorRouter() {
-  const ContentCreatorRouteComponent = contentCreatorRoutes.map((item, index) => {
+  const TeacherRoutesComponent = teacherRoutes.map((item, index) => {
     const path = item.path;
     const ContentComponent = item.element;
     return (
@@ -15,8 +15,8 @@ function ContentCreatorRouter() {
     <>
       <ContentCreatorLayout>
         <Routes>
-          <Route path="" element={<Navigate to={"/contentCreator/course-management"} />} />
-          {ContentCreatorRouteComponent}
+          <Route path="" element={<Navigate to={"/teacher/computer-rooms-management"} />} />
+          {TeacherRoutesComponent}
         </Routes>
       </ContentCreatorLayout>
     </>

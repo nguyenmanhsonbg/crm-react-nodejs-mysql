@@ -35,7 +35,7 @@ const contentStyle = {
 const content = <div style={contentStyle} />;
 
 const AdminRoutes = lazy(() => import("../src/pages/admin/"));
-const ContentCreatorRoutes = lazy(() => import("../src/pages/contentCreator"));
+const TeacherRoutes = lazy(() => import("../src/pages/teacher"));
 const ContentManagerRoutes = lazy(() => import("../src/pages/contentManager/"));
 
 const SpinnerComponent = (
@@ -82,23 +82,15 @@ function App() {
             <Route path="/:id/:week_id/:weekly_exam_id/weeklyExam" element={<WeeklyExam />} />
             <Route path="/weeklyExam/:id/:week_id/:examHistoryId/reviewing" element={<WeeklyExamReviewing />} />
             <Route path="/:id/:week_id/:weekly_exam_id/examsHistory" element={<WeeklyExamHistory />} /> 
-            
              <Route path="/admin/*" element={
-   
                 <AdminRoutes />
-       
             }/>
-            <Route path="/contentCreator/*" element={
-   
-                <ContentCreatorRoutes />
-        
+            <Route path="/teacher/*" element={
+                <TeacherRoutes />
             }/>
             <Route path="/contentManager/*" element={
-
                 <ContentManagerRoutes />
-    
             } />
-            
             <Route path="/error" element={<ErrorPage />}/>
             <Route path="*" element={<ErrorPage />}/>
           </Routes>

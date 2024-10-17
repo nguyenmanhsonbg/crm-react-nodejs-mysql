@@ -35,13 +35,13 @@ const CommonLayout = ({ children }) => {
   } = theme.useToken();
 
   useEffect(() => {
-    setRole("1"); 
-    // const userEncode = localStorage.getItem("user");
-    // if (userEncode) {
-    //   const userDecode = JSON.parse(userEncode);
-    //   // setRole(userDecode?.role_id?.toString() || "1");
-    //   setRole("1"); // Adjust role based on user data
-    // }
+
+    const userEncode = localStorage.getItem("userData");
+    if (userEncode) {
+      const userDecode = JSON.parse(userEncode);
+      // setRole(userDecode?.role_id?.toString() || "1");
+      setRole(userDecode.role); // Adjust role based on user data
+    }
   }, [auth]);
 
   return (
@@ -88,7 +88,7 @@ const CommonLayout = ({ children }) => {
         </div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
           {/* Role 1 (Admin) */}
-          {role === "1" && (
+          {role === "admin" && (
             <>
               <Menu.Item key="1" icon={<UserOutlined />}>
                 <Link to="/admin/user-management">Quản lý người dùng</Link>
@@ -122,9 +122,9 @@ const CommonLayout = ({ children }) => {
           )}
 
           {/* Role 2 (Teacher) */}
-          {role === "2" && (
+          {role === "teacher" && (
             <Menu.Item key="2" icon={<AppstoreAddOutlined />}>
-              <Link to="/teacher/room-management">Quản lý phòng máy</Link>
+              <Link to="/teacher/computer-rooms-management/manage">Quản lý phòng máy</Link>
             </Menu.Item>
           )}
 

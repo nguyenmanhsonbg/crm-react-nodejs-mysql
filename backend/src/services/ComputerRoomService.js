@@ -1,6 +1,6 @@
 // services/ComputerRoomService.js
 
-const { ComputerRoom, Computer, IncidentReport, Support } = require("../../models");
+const { ComputerRoom, Computer, ComputersDevices, ComputerSoftware, IncidentReport, Support, User, Device, Software, ReportDetail } = require("../../models");
 
 class ComputerRoomService {
   /**
@@ -22,6 +22,13 @@ class ComputerRoomService {
           {
             model: Support,
             as: "supports",
+            include: [
+              {
+                model: User, // Include mô hình User trong Support
+                as: "user",
+                attributes: ["user_id", "full_name"], // Chỉ lấy các trường cần thiết
+              },
+            ],
           },
         ],
       });
@@ -39,36 +46,86 @@ class ComputerRoomService {
    */
   async getComputerRoomById(id) {
     try {
-      console.log(id)
       const room = await ComputerRoom.findByPk(id, {
         include: [
           {
             model: Computer,
             as: "computers",
+            include: [
+              {
+                model: ComputersDevices, // Include devices related to the computer
+                as: "computersDevices",
+                include:[
+                  {
+                    model: Device,
+                    as: "device"
+                  }           
+                ]
+              },
+              {
+                model: ComputerSoftware, // Include software related to the computer
+                as: "computerSoftware",
+                include:[{
+                  model: Software,
+                  as: "software"
+                }]
+              },
+            ],
           },
           {
             model: IncidentReport,
             as: "incidentReports",
+            include:[{
+              model: ReportDetail,
+              as: "reportDetails",
+              include:[
+                {
+                model: ComputersDevices,
+                as: 'computersDevice',
+                include:[
+                  {
+                    model: Device,
+                    as: "device"
+                  }
+                ]     
+              },
+              {
+                model: ComputerSoftware,
+                as: 'computerSoftware',
+                include:[{
+                  model: Software,
+                  as: "software"
+                }]
+              }]           
+            }]
           },
           {
             model: Support,
             as: "supports",
+            include: [
+              {
+                model: User, 
+                as: "user",
+                attributes: ["user_id", "full_name"],
+              },
+            ],
           },
         ],
       });
-
+  
       if (!room) {
         const error = new Error("ComputerRoom not found");
         error.status = 404;
         throw error;
       }
-
+  
       return room;
     } catch (error) {
       console.error(`Error in getComputerRoomById (${id}):`, error);
       throw error;
     }
   }
+  
 
   /**
    * Create a new computer room.

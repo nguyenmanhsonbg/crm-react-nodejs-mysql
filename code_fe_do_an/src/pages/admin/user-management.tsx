@@ -1,100 +1,159 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Space, Input, Segmented, message, Modal, Form, Select } from "antd";
-import { AiOutlineEdit } from "react-icons/ai";
-import { CheckCircleOutlined, UserOutlined, TeamOutlined, SettingOutlined } from "@ant-design/icons";
+import { Table, Tag, Space, Input, Segmented, message, Modal, Button, Spin } from "antd";
+import { AiOutlineEdit, AiOutlinePlus } from "react-icons/ai";
+import { UserOutlined, TeamOutlined, SettingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { getUserList } from "../../services/userService";  // Import getUserList function
+import UserForm from "../../components/admin/UserForm"; // Import UserForm component
+import { getUserList } from "../../services/userService"; // Import service to fetch user data
 
+// Define the User interface based on the backend model
 interface User {
-  id: number;
+  user_id: number;
+  username: string;
   full_name: string;
   email: string;
-  avatar?: string;
-  phone_number?: string;
-  status_id?: number;
-  role_id: number;
-  point: number;
-  dob: string;
+  image_path?: string;
+  role: "teacher" | "admin" | "support";
+  status: "active" | "deactive";
 }
 
 const UserManagementPage: React.FC = () => {
-  const [reload, setReload] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [data, setData] = useState<User[]>([]);  // Replace testData with actual data
-  const [filteredData, setFilteredData] = useState<User[]>([]);
-  const [selectedItem, setSelectedItem] = useState<User | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchValue, setSearchValue] = useState("");
-  const [roleFilter, setRoleFilter] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [roleFilter, setRoleFilter] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize] = useState<number>(10);
+  const [mode, setMode] = useState<"create" | "edit">("create"); // Mode state to distinguish create or edit
 
-  // Handle search
+  const navigate = useNavigate();
+
+  // Role mapping based on backend roles
+  const roleMap: { [key: string]: string } = {
+    All: "",
+    "Quản trị viên": "admin",
+    "Giáo viên": "teacher",
+    "IT Support": "support",
+  };
+
+  // Fetch users from the backend
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const userList = await getUserList();
+      setUsers(userList);
+      setFilteredUsers(userList);
+    } catch (error: any) {
+      console.error("Failed to fetch user list:", error);
+      message.error("Không thể tải danh sách người dùng.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Handle search input
   const handleSearch = (value: string) => {
     setSearchValue(value);
-    filterData(value, roleFilter);
+    applyFilters(value, roleFilter);
   };
 
-  // Handle segmented role filtering
-  const handleSegmentedChange = (value: string) => {
-    const roleMap = {
-      All: null,
-      "Quản trị viên": 1,
-      "Giáo viên": 2,
-      "IT Support": 3,
-    };
-    setRoleFilter(roleMap[value]);
-    filterData(searchValue, roleMap[value]);
+  // Handle role filter change
+  const handleRoleChange = (value: string) => {
+    const role = roleMap[value] || null;
+    setRoleFilter(role);
+    applyFilters(searchValue, role);
   };
 
-  // Filter data based on search and role
-  const filterData = (search: string, role: number | null) => {
-    const filtered = data.filter((user) => {
-      const matchesSearch =
-        user.full_name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase());
-      const matchesRole = role === null || user.role_id === role;
-      return matchesSearch && matchesRole;
-    });
-    setFilteredData(filtered);
+  // Apply search and role filters
+  const applyFilters = (search: string, role: string | null) => {
+    let filtered = [...users];
+
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      filtered = filtered.filter(
+        (user) =>
+          user.full_name.toLowerCase().includes(lowerSearch) ||
+          user.email.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    if (role) {
+      filtered = filtered.filter((user) => user.role === role);
+    }
+
+    setFilteredUsers(filtered);
+    setCurrentPage(1); // Reset to first page on filter change
   };
 
+  // Define table columns
   const columns = [
-    { title: "Id", dataIndex: "id", key: "id" },
+    {
+      title: "ID",
+      dataIndex: "user_id",
+      key: "user_id",
+      sorter: (a: User, b: User) => a.user_id - b.user_id,
+    },
     {
       title: "Avatar",
-      dataIndex: "avatar",
-      key: "avatar",
-      render: (text: string) => (
+      dataIndex: "image_path",
+      key: "image_path",
+      render: (imagePath: string | undefined) => (
         <img
           style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-          src={text || "https://example.com/default-avatar.jpg"}
+          src={imagePath || "https://via.placeholder.com/40?text=Avatar"}
           alt="avatar"
         />
       ),
     },
-    { title: "Tên người dùng", dataIndex: "full_name", key: "full_name" },
-    { title: "Địa chỉ Email", dataIndex: "email", key: "email" },
-    { title: "Số điện thoại", dataIndex: "phone_number", key: "phone_number" },
+    {
+      title: "Tên người dùng",
+      dataIndex: "full_name",
+      key: "full_name",
+      sorter: (a: User, b: User) => a.full_name.localeCompare(b.full_name),
+    },
+    {
+      title: "Địa chỉ Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a: User, b: User) => a.email.localeCompare(b.email),
+    },
     {
       title: "Vai trò",
-      dataIndex: "role_id",
-      key: "role_id",
-      render: (_: any, user: User) => {
-        const roleNames = ["Người dùng", "Quản trị viên", "Giáo viên", "IT Support"];
-        return <Tag>{roleNames[user.role_id - 1]}</Tag>;
+      dataIndex: "role",
+      key: "role",
+      filters: [
+        { text: "Quản trị viên", value: "admin" },
+        { text: "Giáo viên", value: "teacher" },
+        { text: "IT Support", value: "support" },
+      ],
+      onFilter: (value: string | number | boolean, record: User) => record.role === value,
+      render: (role: string) => {
+        let color = role === "admin" ? "volcano" : role === "teacher" ? "green" : "blue";
+        return <Tag color={color}>{role}</Tag>;
       },
     },
     {
       title: "Trạng thái",
-      dataIndex: "status_id",
-      key: "status_id",
-      render: (status: number) => (
-        <Tag color={status === 2 ? "green" : status === 3 ? "volcano" : ""}>
-          {status === 2 ? "Hoạt động" : status === 3 ? "Không hoạt động" : ""}
+      dataIndex: "status",
+      key: "status",
+      filters: [
+        { text: "Hoạt động", value: "active" },
+        { text: "Không hoạt động", value: "deactive" },
+      ],
+      onFilter: (value: string | number | boolean, record: User) => record.status === value,
+      render: (status: string) => (
+        <Tag color={status === "active" ? "green" : "volcano"}>
+          {status === "active" ? "Hoạt động" : "Không hoạt động"}
         </Tag>
       ),
     },
-    { title: "Ngày sinh", dataIndex: "dob", key: "dob" },
     {
       title: "Hành động",
       key: "action",
@@ -102,7 +161,8 @@ const UserManagementPage: React.FC = () => {
         <Space size="middle">
           <a
             onClick={() => {
-              setSelectedItem(record);
+              setSelectedUser(record);
+              setMode("edit"); // Set mode to edit
               setIsModalOpen(true);
             }}
           >
@@ -113,64 +173,32 @@ const UserManagementPage: React.FC = () => {
     },
   ];
 
-  // Use `useEffect` to fetch real data when the component mounts
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userList = await getUserList();
-        console.log(userList);
-        setData(userList);
-        setFilteredData(userList);  // Set filteredData to show all initially
-        setReload(false);
-      } catch (error) {
-        console.error("Failed to fetch user list:", error);
-      }
-    };
-
-    if (reload) {
-      fetchData();
-    }
-  }, [reload]);
-
   return (
     <>
-      <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between" }}>
-        {/* Search box */}
-        <Input.Search
-          placeholder="Tìm kiếm theo tên hoặc email"
-          onSearch={handleSearch}
-          style={{ width: "300px" }}
-        />
-
-        {/* Segmented control for role filtering */}
-        <Segmented
-          options={[
-            { label: "All", value: "All", icon: <UserOutlined /> },
-            { label: "Quản trị viên", value: "Quản trị viên", icon: <TeamOutlined /> },
-            { label: "Giáo viên", value: "Giáo viên", icon: <SettingOutlined /> },
-            { label: "IT Support", value: "IT Support", icon: <TeamOutlined /> },
-          ]}
-          onChange={handleSegmentedChange}
-          defaultValue="All"
-        />
+      <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Input.Search placeholder="Tìm kiếm theo tên hoặc email" onSearch={handleSearch} allowClear style={{ width: "300px" }} />
+        <Button
+          type="primary"
+          icon={<AiOutlinePlus />}
+          onClick={() => {
+            setSelectedUser(null); // Reset selected user
+            setMode("create"); // Set mode to create
+            setIsModalOpen(true); // Open modal
+          }}
+        >
+          Tạo người dùng mới
+        </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        pagination={{
-          current: currentPage,
-          total: filteredData.length,
-          showSizeChanger: false,
-          onChange: (page) => setCurrentPage(page),
-        }}
-      />
-      {/* <ModalEdit
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        data={selectedItem}
-        setReload={setReload}
-      /> */}
+      {/* User Table */}
+      <Spin spinning={loading}>
+        <Table columns={columns} dataSource={filteredUsers} rowKey="user_id" pagination={{ current: currentPage, pageSize, total: filteredUsers.length, onChange: (page) => setCurrentPage(page), showSizeChanger: false }} />
+      </Spin>
+
+      {/* Edit or Create User Modal */}
+      <Modal title={mode === "edit" ? "Chỉnh sửa người dùng" : "Tạo người dùng mới"} visible={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null} destroyOnClose>
+        <UserForm mode={mode} user={selectedUser} onSuccess={() => { setIsModalOpen(false); fetchUsers(); }} onCancel={() => setIsModalOpen(false)} />
+      </Modal>
     </>
   );
 };

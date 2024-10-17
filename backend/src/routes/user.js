@@ -7,8 +7,11 @@ const {
   createUser,
   updateUser,
   deleteUser,
+  getUserRoleSupport,
   loginUser, 
 } = require('../controllers/userController');
+
+const { checkAuthAndRole } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -16,10 +19,11 @@ const router = express.Router();
 router.post('/login', loginUser);
 
 router.get('/getAllUsers', getAllUsers);
-router.get('/getUserById:id', getUserById);
+router.get('/getUserRoleSupport', getUserRoleSupport);
+router.get('/getUserById/:id', getUserById);
 router.post('/createUser', createUser);
-router.put('/updateUser:id', updateUser);
-router.delete('/deleteUser:id', deleteUser);
+router.put('/updateUser/:id', updateUser);
+
 
 // router.get('/users', checkAuthAndRole(['admin', 'support']), getAllUsers);  // Only 'admin' and 'support' can access this
 // router.get('/users/:id', checkAuthAndRole(['admin', 'support']), getUserById);

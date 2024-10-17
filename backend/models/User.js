@@ -39,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      status: {
+        type: DataTypes.ENUM("active", "deactive"),
+        allowNull: false,
+      }
     },
     {
       tableName: "users",

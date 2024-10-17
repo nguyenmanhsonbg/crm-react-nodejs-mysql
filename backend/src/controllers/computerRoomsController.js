@@ -14,7 +14,8 @@ const getAllRooms = async (req, res) => {
 const getRoomById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
+    console.log("get room:" + id);
+   
     const room = await computerRoomsService.getComputerRoomById(id);
     if (room) {
       res.status(200).json(room);

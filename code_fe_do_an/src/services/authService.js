@@ -13,8 +13,9 @@ const loginUser = async (credentials) => {
 };
 
 const logoutUser = () => {
-  localStorage.removeItem('authToken');  // Remove token from storage
-  window.location.href = '/login';  // Redirect to login
+  localStorage.removeItem('authToken'); 
+  localStorage.removeItem('userData');  // Remove token from storage
+  window.location.href = '/';  // Redirect to login
 };
 
 export { registerUser, loginUser, logoutUser };

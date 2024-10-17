@@ -20,12 +20,24 @@ const apiWithoutToken = axios.create({
 });
 
 // Interceptor for `apiWithToken` to automatically include the token
+// Interceptor để thêm `Authorization` header cho tất cả request
 apiWithToken.interceptors.request.use(
   (config) => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user?.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    // Lấy authToken từ localStorage
+    const authToken = localStorage.getItem('authToken');
+    console.log(authToken)
+    // Chỉ thêm `Authorization` nếu authToken tồn tại và không rỗng
+    if (authToken && authToken !== '{}') {
+      try {
+        const user = JSON.parse(authToken);
+        if (user?.token) {
+          config.headers.Authorization = `Bearer ${user.token}`;
+        }
+      } catch (error) {
+        console.error('Error parsing authToken:', error);
+      }
     }
+    
     return config;
   },
   (error) => Promise.reject(error)
