@@ -1,6 +1,6 @@
 // services/ComputerRoomService.js
 
-const { ComputerRoom, Computer, ComputersDevices, ComputerSoftware, IncidentReport, Support, User, Device, Software, ReportDetail } = require("../../models");
+const { ComputerRoom, Computer, ComputerType, ComputerTypeDevice, ComputerTypeSoftware, ComputersDevices, ComputerSoftware, IncidentReport, Support, User, Device, Software, ReportDetail } = require("../../models");
 
 class ComputerRoomService {
   /**
@@ -133,14 +133,74 @@ class ComputerRoomService {
    * @returns {Promise<Object>}
    */
   async createComputerRoom(data) {
-    try {
-      const newRoom = await ComputerRoom.create(data);
-      return newRoom;
-    } catch (error) {
-      console.error("Error in createComputerRoom:", error);
-      throw error;
-    }
+    const { room_name, numberOfComputers, computerType, supportStaff } = data;
+
+    // try {
+      // 1. Create a new room
+      // const newRoom = await ComputerRoom.create({ room_name });
+
+      // 2. Fetch the ComputerType configuration by the provided ID
+      const computerTypeConfig = await ComputerType.findByPk(computerType, {
+        include: [
+          {
+            model: ComputerTypeDevice,
+            as: 'computerTypeDevices',
+          },
+          {
+            model: ComputerTypeSoftware,
+            as: 'computerTypeSoftware',
+          },
+        ],
+      });
+
+      console.log(computerTypeConfig)
+  
+      if (!computerTypeConfig) {
+        return res.status(404).json({ error: 'Computer type not found' });
+      }
+  
+      // 3. Create new computers based on the fetched configuration
+      const computers = [];
+      for (let i = 0; i < numberOfComputers; i++) {
+        // Create a new computer in the room
+        const newComputer = await Computer.create({
+          computer_name: `${room_name} - Computer ${i + 1}`, // Name each computer uniquely
+          room_id: newRoom.room_id
+        });
+        computers.push(newComputer);
+  
+        // 4. Clone devices from the template and set their status to 'Installing'
+        for (const deviceTemplate of computerTypeConfig.computerTypeDevices) {
+          await ComputersDevices.create({
+            computer_id: newComputer.computer_id,
+            device_id: deviceTemplate.device_id,
+            status: 'Installing' // Set status to Installing
+          });
+        }
+  
+        // 5. Clone software from the template and set their status to 'Installing'
+        for (const softwareTemplate of computerTypeConfig.computerTypeSoftware) {
+          await ComputerSoftware.create({
+            computer_id: newComputer.computer_id,
+            software_id: softwareTemplate.software_id,
+            status: 'Installing' // Set status to Installing
+          });
+        }
+      }
+  
+      // Return the created room and its computers
+      // res.status(201).json({
+      //   message: `Room ${room_name} created successfully with ${numberOfComputers} computers.`,
+      //   room: newRoom,
+      //   computers
+      // });
+      res.status(201).json();
+       
+    // } catch (error) {
+    //   res.status(500).json({ error: error.message });
+    // }
   }
+  
 
   /**
    * Update an existing computer room by ID.

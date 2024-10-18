@@ -51,14 +51,16 @@ const ComputerRoomModal: React.FC<ComputerRoomModalProps> = ({
         // Gọi service cập nhật phòng máy
         await updateComputerRoom(room.room_id!, {
           ...values,
-          supportStaffId: selectedSupport, // Include selected support staff
+          supportStaffId: selectedSupport,
+          computerType: selectedComputerType, // Include selected support staff
         });
         message.success("Cập nhật phòng máy thành công!");
       } else {
-        // Gọi service tạo mới phòng máy
+        //Gọi service tạo mới phòng máy
         await createComputerRoom({
           ...values,
-          supportStaffId: selectedSupport, // Include selected support staff
+          supportStaffId: selectedSupport,
+          computerType: selectedComputerType, // Include selected support staff
         });
         message.success("Tạo phòng máy mới thành công!");
       }

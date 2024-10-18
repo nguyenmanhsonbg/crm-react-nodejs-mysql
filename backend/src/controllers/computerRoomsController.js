@@ -29,8 +29,11 @@ const getRoomById = async (req, res) => {
 
 const createRoom = async (req, res) => {
   try {
-    const newRoom = await computerRoomsService.createComputerRoom(req.body);
-    res.status(201).json(newRoom);
+     const newRoom = await computerRoomsService.createComputerRoom(req.body);
+
+
+    // res.status(201).json(newRoom);
+    res.status(201).json();
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
